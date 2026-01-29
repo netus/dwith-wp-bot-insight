@@ -5,7 +5,6 @@ Description: Log only (1) search engine bots by UA match, (2) mid/high risk traf
 Version: 1.2.0
 Author: dwith.com
 */
-
 if (!defined('ABSPATH')) exit;
 
 if (!class_exists('Dwith_Bot_Insight_Lite')) {
@@ -48,7 +47,7 @@ class Dwith_Bot_Insight_Lite {
         $d = [
             'trust_proxy'   => 0,
             'days_keep'     => 30,
-            'per_page'      => 200,  // 100/200/500/1000
+            'per_page'      => 100,  // 10/20/50/100/200
             'dedupe_ttl'    => self::DEFAULT_TTL, // 10..600
             'enable_dedupe' => 1,
         ];
@@ -57,7 +56,7 @@ class Dwith_Bot_Insight_Lite {
         $s = array_merge($d, $s);
 
         $s['days_keep']  = max(7, min(365, intval($s['days_keep'])));
-        $s['per_page']   = in_array(intval($s['per_page']), [100,200,500,1000], true) ? intval($s['per_page']) : 200;
+        $s['per_page']   = in_array(intval($s['per_page']), [10,20,50,100,200], true) ? intval($s['per_page']) : 100;
         $s['dedupe_ttl'] = max(10, min(600, intval($s['dedupe_ttl'])));
 
         foreach (['trust_proxy','enable_dedupe'] as $k) $s[$k] = !empty($s[$k]) ? 1 : 0;
@@ -72,7 +71,7 @@ class Dwith_Bot_Insight_Lite {
         $s['days_keep'] = max(7, min(365, $dk));
 
         $pp = intval($post['per_page'] ?? $s['per_page']);
-        $s['per_page'] = in_array($pp, [100,200,500,1000], true) ? $pp : 200;
+        $s['per_page'] = in_array($pp, [10,20,50,100,200], true) ? $pp : 100;
 
         $tt = intval($post['dedupe_ttl'] ?? $s['dedupe_ttl']);
         $s['dedupe_ttl'] = max(10, min(600, $tt));
@@ -398,7 +397,7 @@ class Dwith_Bot_Insight_Lite {
         echo 'Keep days: <input type="number" name="days_keep" value="'.esc_attr($s['days_keep']).'" style="width:90px"> ';
         echo 'Dedupe TTL: <input type="number" name="dedupe_ttl" value="'.esc_attr($s['dedupe_ttl']).'" style="width:90px"> sec ';
         echo 'Per page: <select name="per_page">';
-        foreach ([100,200,500,1000] as $n) echo '<option value="'.$n.'" '.selected($s['per_page'],$n,false).'>'.$n.'</option>';
+        foreach ([10,20,50,100,200] as $n) echo '<option value="'.$n.'" '.selected($s['per_page'],$n,false).'>'.$n.'</option>';
         echo '</select>';
         echo '<p><button class="button button-primary" name="dwith_bi_save" value="1">Save</button></p>';
         echo '</form>';
