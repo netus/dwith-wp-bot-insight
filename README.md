@@ -1,108 +1,147 @@
 # dwith Bot Insight (Lite)
 
-A lightweight WordPress plugin for observing **WordPress bot traffic** and **mid/high risk requests** that actually reach WordPress, designed specifically for Cloudflare-based sites.
+A minimal WordPress plugin for observing **WordPress bot traffic** and **mid/high-risk requests** that actually reach WordPress, designed for Cloudflare-based sites.
 
-This plugin does not attempt to identify or block traffic.  
+This plugin does **not** attempt to identify, verify, or block traffic.  
 It records outcomes only.
+
+---
+
+## Purpose
+
+Cloudflare already performs bot verification, blocking, and challenges at the edge.
+
+This plugin answers a single question:
+
+**After Cloudflare filtering, what traffic still reaches WordPress?**
+
+---
 
 ## Design Philosophy
 
-Cloudflare already handles bot verification, blocking, and challenges at the edge.  
-WordPress should not repeat identity verification.
+- Do not fight Cloudflare’s architecture  
+- Do not re-verify identities inside WordPress  
+- Do not parse server access logs  
+- Do not rely on reverse DNS  
+- Observe only what successfully enters WordPress  
 
-This plugin focuses on a single question:
+WordPress acts as an **inbound result observer**, not a security gate.
 
-What traffic still reaches WordPress after Cloudflare?
+---
 
 ## What This Plugin Records
 
-Search engine bot traffic:
-- Recorded only when the User-Agent clearly matches known search engine bots
-- No reverse DNS
-- No IP verification
-- No access.log parsing
+### 1. Search Engine Bot Traffic
+Recorded only when the **User-Agent clearly matches** known search engine crawlers:
 
-Risk traffic:
-- Only requests classified as mid or high risk
-- Based on HTTP status codes, request paths, and behavior patterns
-- Only traffic that successfully enters WordPress
+- Googlebot  
+- bingbot  
+- DuckDuckBot  
+- YandexBot  
+- Yahoo Slurp  
+
+No IP verification or DNS lookup is performed.
+
+---
+
+### 2. Mid / High Risk Requests
+Requests that reach WordPress and match **clear risk signals**, including:
+
+- 4xx / 5xx response codes  
+- Known probe paths (e.g. `/wp-login.php`, `/xmlrpc.php`, `/wp-admin/`)  
+- Common scanning or exploitation tool signatures in User-Agent  
+
+Only requests that actually execute within WordPress are recorded.
+
+---
 
 ## What This Plugin Does NOT Do
 
-- No server log access
-- No reverse DNS lookups
-- No IP reputation checks
-- No firewall rules
-- No blocking or rate limiting
-- No frontend scripts
+- No traffic blocking  
+- No firewall rules  
+- No access.log parsing  
+- No reverse DNS verification  
+- No Cloudflare API usage  
+- No frontend scripts  
+- No JavaScript tracking  
 
-## Detection Logic Summary
-
-Search bots:
-- Googlebot
-- Bingbot
-- DuckDuckBot
-- YandexBot
-- Slurp
-
-Risk classification:
-- High risk: 5xx responses, known probe paths
-- Mid risk: repeated 4xx responses, scanner User-Agents
-- Low risk traffic is ignored
+---
 
 ## Performance Characteristics
 
-- Zero frontend output
-- No cron jobs
-- One database insert at shutdown
-- Optional short-term deduplication via transients
-- Lazy cleanup only when admin page is opened
+- Runs entirely inside the WordPress request lifecycle  
+- Executes lightweight string matching only  
+- Writes to database **only when a record is relevant**  
+- Optional deduplication via transients  
+- No impact on page rendering  
 
-Designed for minimal overhead.
+Designed for negligible overhead.
 
-## Admin Interface
-
-WordPress Admin:
-- Bot Insight menu
-- Collapsible settings panel
-- Collapsible tools panel
-- Search and filterable event table
-- Per-page limits
-- Optional proxy trust (Cloudflare / X-Forwarded-For)
-
-No data is exposed on the frontend.
-
-## Requirements
-
-- WordPress 6.0+
-- PHP 7.4+
-- MySQL 5.7+ or equivalent
-
-## Installation
-
-1. Upload plugin folder to `wp-content/plugins/`
-2. Activate **dwith Bot Insight (Lite)** in WordPress admin
-3. Visit **Bot Insight** in the admin menu
-
-No additional configuration required.
-
-## Recommended Environment
-
-- Cloudflare in front of WordPress
-- Firewall rules handled at Cloudflare level
-- WordPress used as observation layer only
+---
 
 ## Data Storage
 
-- Custom database table
-- Retention period configurable
-- Manual purge available
-- Manual cleanup trigger available
+- Stored in a dedicated WordPress database table  
+- Automatically cleaned based on retention settings  
+- No server-level file access required  
+
+---
+
+## Admin Interface
+
+- View recent search bot and risk events  
+- Filter by type, status code, keyword  
+- Adjustable retention period  
+- Optional request deduplication  
+- Manual cleanup and purge tools  
+
+Admin-only visibility.
+
+---
+
+## Intended Use Cases
+
+- Understanding real search engine crawl behavior  
+- Observing which attacks bypass Cloudflare rules  
+- Deriving new firewall rules from actual inbound patterns  
+- Keeping WordPress-level visibility clean and focused  
+
+---
+
+## Not Intended For
+
+- Bot blocking or mitigation  
+- Security enforcement  
+- Analytics replacement  
+- SEO ranking analysis  
+
+---
+
+## Installation
+
+1. Upload the plugin folder to `wp-content/plugins/`
+2. Activate **dwith Bot Insight (Lite)** in WordPress Admin
+3. Visit **Bot Insight** in the admin menu
+
+No configuration required to start.
+
+---
+
+## Uninstall Behavior
+
+- Deactivation stops all logging  
+- Database table remains until manually purged  
+- Purge tool available in admin interface  
+
+---
 
 ## License
 
-MIT
+MIT License
+
+---
 
 ## Author
 
+Designed by dwith  
 https://dwith.com
